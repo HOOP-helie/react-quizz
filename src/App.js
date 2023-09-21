@@ -4,23 +4,21 @@ import Header from './components/Header';
 import Main from './components/Main';
 import Loader from './components/Loader';
 import Error from './components/Error';
+import StartScreen from './components/StartScreen';
 
 const initialState = {
   questions: [],
-  isLoading: false,
-  error: false
+  status: 'loading'
 }
+
 function reducer(state, action) {
   let newState;
   switch (action.type) {
-    case 'setQuestions':
-      newState = { ...state, questions: action.payload }
+    case 'dataReceived':
+      newState = { ...state, questions: action.payload, status: "ready" }
       break;
-    case 'setIsLoading':
-      newState = { ...state, isLoading: action.payload }
-      break;
-    case 'setError':
-      newState = { ...state, error: action.payload }
+    case 'dataError':
+      newState = { ...state, status: 'error' }
       break;
     default:
       break;
@@ -30,11 +28,10 @@ function reducer(state, action) {
 
 function App() {
   const [quizzState, dispatch] = useReducer(reducer, initialState);
+  const nbQuestions = quizzState.questions.length;
 
   const fetchQuestions = async () => {
     try {
-      dispatch({ type: "setIsLoading", payload: true })
-      dispatch({ type: 'setError', payload: false })
 
       const response = await fetch('http://localhost:8000/questions');
 
@@ -44,13 +41,11 @@ function App() {
 
       const questions = await response.json();
 
-      dispatch({ type: 'setQuestions', payload: questions })
+      dispatch({ type: 'dataReceived', payload: questions })
 
     } catch (error) {
-      dispatch({ type: 'setError', payload: true })
+      dispatch({ type: 'dataError', payload: true })
 
-    } finally {
-      dispatch({ type: "setIsLoading", payload: false })
     }
 
   }
@@ -64,9 +59,9 @@ function App() {
     <div className="app">
       <Header />
       <Main>
-        {quizzState.isLoading && <Loader />}
-        {quizzState.error && <Error />}
-        {quizzState.questions && <p>Questions available</p>}
+        {quizzState.status === "loading" && <Loader />}
+        {quizzState.status === "error" && <Error />}
+        {quizzState.status === "ready" && <StartScreen nbQuestions={nbQuestions} />}
       </Main>
     </div>
   );
