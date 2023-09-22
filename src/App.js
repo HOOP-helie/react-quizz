@@ -10,7 +10,10 @@ import ProgressBar from './components/ProgressBar';
 
 const initialState = {
   questions: [],
+  totalPoints: 0,
   progress: 0,
+  score: 0,
+  highScore: 0,
   status: 'loading'
 }
 
@@ -18,13 +21,19 @@ function reducer(state, action) {
   let newState;
   switch (action.type) {
     case 'dataReceived':
-      newState = { ...state, questions: action.payload, status: "ready" }
+      newState = { ...state, questions: action.payload.questions, status: "ready", totalPoints: action.payload.points }
       break;
     case 'dataError':
       newState = { ...state, status: 'error' }
       break;
     case 'quizzStarted':
       newState = { ...state, status: 'started' }
+      break;
+    case 'correctAnswer':
+      newState = { ...state, score: state.score + action.payload };
+      break;
+    case 'nextQuestion':
+      newState = { ...state, progress: state.progress++ }
       break;
     default:
       break;
@@ -46,15 +55,13 @@ function App() {
       }
 
       const questions = await response.json();
+      const totalPoints = questions.reduce((acc, question) => { return acc + question.points }, 0)
 
-
-      dispatch({ type: 'dataReceived', payload: questions })
+      dispatch({ type: 'dataReceived', payload: { questions: questions, points: totalPoints } })
 
     } catch (error) {
       dispatch({ type: 'dataError', payload: true })
-
     }
-
   }
 
   useEffect(() => {
@@ -63,6 +70,13 @@ function App() {
 
   const startQuizzHandler = () => {
     dispatch({ type: 'quizzStarted' })
+  }
+
+  const nexQuestionHandler = () => {
+    dispatch({ type: 'nextQuestion' })
+  }
+  const correctAnswerHandler = (nbOfPoints) => {
+    dispatch({ type: 'correctAnswer', payload: nbOfPoints })
   }
 
   return (
@@ -74,8 +88,8 @@ function App() {
         {quizzState.status === "ready" && <StartScreen startQuizz={startQuizzHandler} nbQuestions={nbQuestions} />}
         {quizzState.status === "started" && (
           <>
-            <ProgressBar />
-            <Question {...quizzState.questions[quizzState.progress]} />
+            <ProgressBar {...quizzState} />
+            <Question addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState.questions[quizzState.progress]} />
           </>
         )}
       </Main>

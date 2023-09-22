@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 
-function Question({ question, points, options, correctOption }) {
+function Question({ addPoints, nextQuestion, question, points, options, correctOption }) {
     const [answer, setAnswer] = useState(null);
 
     const setClassName = (index) => {
         let optionClassName = 'btn btn-option';
-
-        if (answer) {
+        if (answer !== null) {
             if (index === answer) optionClassName += ' answer';
             index === correctOption ? optionClassName += ' correct' : optionClassName += ' wrong';
         }
@@ -16,15 +15,22 @@ function Question({ question, points, options, correctOption }) {
 
     const clickHandler = (index) => {
         setAnswer(index);
+        if (correctOption === index) addPoints(points)
+    }
+
+    const nextQuestionHandler = (index) => {
+        nextQuestion()
+        setAnswer(null)
     }
 
     return (
         <div>
             <h4>{question}</h4>
             <div className="options">
-                {options.map((option, index) => <btn className={setClassName(index)} onClick={() => clickHandler(index)}>{option}</btn>
+                {options.map((option, index) => <button className={setClassName(index)} onClick={() => clickHandler(index)}>{option}</button>
                 )}
             </div>
+            {answer !== null && <button onClick={nextQuestionHandler} className='btn btn-ui'>Next</button>}
         </div>
     )
 }
