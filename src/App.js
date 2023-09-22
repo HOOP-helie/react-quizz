@@ -5,9 +5,12 @@ import Main from './components/Main';
 import Loader from './components/Loader';
 import Error from './components/Error';
 import StartScreen from './components/StartScreen';
+import Question from './components/Question';
+import ProgressBar from './components/ProgressBar';
 
 const initialState = {
   questions: [],
+  progress: 0,
   status: 'loading'
 }
 
@@ -19,6 +22,9 @@ function reducer(state, action) {
       break;
     case 'dataError':
       newState = { ...state, status: 'error' }
+      break;
+    case 'quizzStarted':
+      newState = { ...state, status: 'started' }
       break;
     default:
       break;
@@ -41,6 +47,7 @@ function App() {
 
       const questions = await response.json();
 
+
       dispatch({ type: 'dataReceived', payload: questions })
 
     } catch (error) {
@@ -54,6 +61,9 @@ function App() {
     fetchQuestions()
   }, []);
 
+  const startQuizzHandler = () => {
+    dispatch({ type: 'quizzStarted' })
+  }
 
   return (
     <div className="app">
@@ -61,7 +71,13 @@ function App() {
       <Main>
         {quizzState.status === "loading" && <Loader />}
         {quizzState.status === "error" && <Error />}
-        {quizzState.status === "ready" && <StartScreen nbQuestions={nbQuestions} />}
+        {quizzState.status === "ready" && <StartScreen startQuizz={startQuizzHandler} nbQuestions={nbQuestions} />}
+        {quizzState.status === "started" && (
+          <>
+            <ProgressBar />
+            <Question {...quizzState.questions[quizzState.progress]} />
+          </>
+        )}
       </Main>
     </div>
   );
