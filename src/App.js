@@ -6,7 +6,8 @@ import Loader from './components/Loader';
 import Error from './components/Error';
 import StartScreen from './components/StartScreen';
 import Question from './components/Question';
-import ProgressBar from './components/ProgressBar';
+import Progress from './components/Progress';
+import Results from './components/Results';
 
 const initialState = {
   questions: [],
@@ -29,8 +30,14 @@ function reducer(state, action) {
     case 'quizzStarted':
       newState = { ...state, status: 'started' }
       break;
+    case 'quizzFinished':
+      newState = { ...state, status: 'finished' }
+      break;
     case 'correctAnswer':
       newState = { ...state, score: state.score + action.payload };
+      break;
+    case 'quizzRestarted':
+      newState = { ...state, score: 0, progress: 0, status: "started" };
       break;
     case 'nextQuestion':
       newState = { ...state, progress: state.progress++ }
@@ -72,11 +79,17 @@ function App() {
     dispatch({ type: 'quizzStarted' })
   }
 
-  const nexQuestionHandler = () => {
-    dispatch({ type: 'nextQuestion' })
+  const nexQuestionHandler = (proceed) => {
+    proceed && dispatch({ type: 'nextQuestion' })
+    !proceed && dispatch({ type: 'quizzFinished' })
   }
+
   const correctAnswerHandler = (nbOfPoints) => {
     dispatch({ type: 'correctAnswer', payload: nbOfPoints })
+  }
+
+  const restartQuizzHandler = () => {
+    dispatch({ type: 'quizzRestarted' })
   }
 
   return (
@@ -88,8 +101,14 @@ function App() {
         {quizzState.status === "ready" && <StartScreen startQuizz={startQuizzHandler} nbQuestions={nbQuestions} />}
         {quizzState.status === "started" && (
           <>
-            <ProgressBar {...quizzState} />
-            <Question addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState.questions[quizzState.progress]} />
+            <Progress {...quizzState} nbOfQuestions={nbQuestions} />
+            <Question nbOfQuestions={nbQuestions} addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState} />
+          </>
+        )}
+        {quizzState.status === "finished" && (
+          <>
+            <Results  {...quizzState} />
+            <button className='btn btn-ui' onClick={restartQuizzHandler}>Restart</button>
           </>
         )}
       </Main>

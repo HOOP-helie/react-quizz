@@ -1,7 +1,6 @@
 import React from 'react'
 
-function ProgressBar({ questions, progress, score, totalPoints }) {
-    const nbOfQuestions = questions.length;
+function Progress({ nbOfQuestions, progress, score, totalPoints }) {
     return (
         <div>
             <header className='progress'><progress id="file" max={nbOfQuestions} value={progress}></progress>
@@ -12,4 +11,4 @@ function ProgressBar({ questions, progress, score, totalPoints }) {
     )
 }
 
-export default ProgressBar
+export default Progress

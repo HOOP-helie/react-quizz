@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 
-function Question({ addPoints, nextQuestion, question, points, options, correctOption }) {
+function Question({ addPoints, nextQuestion, nbOfQuestions, progress, questions }) {
+
+    const { question, points, options, correctOption } = questions[progress];
     const [answer, setAnswer] = useState(null);
 
     const setClassName = (index) => {
@@ -9,7 +11,6 @@ function Question({ addPoints, nextQuestion, question, points, options, correctO
             if (index === answer) optionClassName += ' answer';
             index === correctOption ? optionClassName += ' correct' : optionClassName += ' wrong';
         }
-
         return optionClassName
     }
 
@@ -18,8 +19,9 @@ function Question({ addPoints, nextQuestion, question, points, options, correctO
         if (correctOption === index) addPoints(points)
     }
 
-    const nextQuestionHandler = (index) => {
-        nextQuestion()
+    const nextQuestionHandler = () => {
+        if (progress === nbOfQuestions - 1) { nextQuestion(false) }
+        else { nextQuestion(true) }
         setAnswer(null)
     }
 
