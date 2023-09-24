@@ -19,35 +19,26 @@ const initialState = {
 }
 
 function reducer(state, action) {
-  let newState;
   switch (action.type) {
     case 'dataReceived':
-      newState = { ...state, questions: action.payload.questions, status: "ready", totalPoints: action.payload.points }
-      break;
+      return { ...state, questions: action.payload.questions, status: "ready", totalPoints: action.payload.points };
     case 'dataError':
-      newState = { ...state, status: 'error' }
-      break;
+      return { ...state, status: 'error' };
     case 'quizzStarted':
-      newState = { ...state, status: 'started' }
-      break;
+      return { ...state, status: 'started' };
     case 'quizzFinished':
-      newState = {
+      return {
         ...state, status: 'finished', highScore: state.score > state.highScore ? state.score : state.highScore
-      }
-      break;
+      };
     case 'correctAnswer':
-      newState = { ...state, score: state.score + action.payload };
-      break;
+      return { ...state, score: state.score + action.payload };
     case 'quizzRestarted':
-      newState = { ...state, score: 0, progress: 0, status: "started" };
-      break;
+      return { ...state, score: 0, progress: 0, status: "started" };
     case 'nextQuestion':
-      newState = { ...state, progress: state.progress++ }
-      break;
+      return { ...state, progress: state.progress++ };
     default:
       break;
   }
-  return newState
 }
 
 function App() {
@@ -97,11 +88,11 @@ function App() {
   const statusComponents = {
     loading: <Loader />,
     error: <Error />,
-    ready: <StartScreen startQuizz={startQuizzHandler} nbQuestions={quizzState.questions.length} />,
+    ready: <StartScreen startQuizz={startQuizzHandler} nbQuestions={nbQuestions} />,
     started: (
       <>
-        <Progress {...quizzState} nbOfQuestions={quizzState.questions.length} />
-        <Question nbOfQuestions={quizzState.questions.length} addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState} />
+        <Progress {...quizzState} nbQuestions={nbQuestions} />
+        <Question nbQuestions={nbQuestions} addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState} />
       </>
     ),
     finished: (
@@ -113,12 +104,11 @@ function App() {
       </>
     ),
   };
+
   return (
     <div className="app">
       <Header />
-      <Main>
-        <Main>{statusComponents[quizzState.status]}</Main>
-      </Main>
+      <Main>{statusComponents[quizzState.status]}</Main>
     </div>
   );
 }

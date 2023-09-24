@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-function Question({ addPoints, nextQuestion, nbOfQuestions, progress, questions }) {
+function Question({ addPoints, nextQuestion, nbQuestions, progress, questions }) {
 
     const { question, points, options, correctOption } = questions[progress];
     const [answer, setAnswer] = useState(null);
@@ -14,13 +14,13 @@ function Question({ addPoints, nextQuestion, nbOfQuestions, progress, questions 
         return optionClassName
     }
 
-    const clickHandler = (index) => {
+    const clickedAnswerHandler = (index) => {
         setAnswer(index);
         if (correctOption === index) addPoints(points)
     }
 
     const nextQuestionHandler = () => {
-        nextQuestion(progress !== nbOfQuestions - 1)
+        nextQuestion(progress !== nbQuestions - 1)
         setAnswer(null)
     }
 
@@ -28,7 +28,7 @@ function Question({ addPoints, nextQuestion, nbOfQuestions, progress, questions 
         <div>
             <h4>{question}</h4>
             <div className="options">
-                {options.map((option, index) => <button className={setClassName(index)} onClick={() => clickHandler(index)}>{option}</button>
+                {options.map((option, index) => <button className={setClassName(index)} onClick={() => clickedAnswerHandler(index)}>{option}</button>
                 )}
             </div>
             {answer !== null && <button onClick={nextQuestionHandler} className='btn btn-ui'>Next</button>}
