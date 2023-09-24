@@ -20,8 +20,7 @@ function Question({ addPoints, nextQuestion, nbOfQuestions, progress, questions 
     }
 
     const nextQuestionHandler = () => {
-        if (progress === nbOfQuestions - 1) { nextQuestion(false) }
-        else { nextQuestion(true) }
+        nextQuestion(progress !== nbOfQuestions - 1)
         setAnswer(null)
     }
 

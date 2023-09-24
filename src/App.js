@@ -31,11 +31,9 @@ function reducer(state, action) {
       newState = { ...state, status: 'started' }
       break;
     case 'quizzFinished':
-      if (state.score > state.highScore) {
-        newState = { ...state, status: 'finished', highScore: state.score }
-
-      } else { newState = { ...state, status: 'finished' } }
-
+      newState = {
+        ...state, status: 'finished', highScore: state.score > state.highScore ? state.score : state.highScore
+      }
       break;
     case 'correctAnswer':
       newState = { ...state, score: state.score + action.payload };
@@ -96,25 +94,30 @@ function App() {
     dispatch({ type: 'quizzRestarted' })
   }
 
+  const statusComponents = {
+    loading: <Loader />,
+    error: <Error />,
+    ready: <StartScreen startQuizz={startQuizzHandler} nbQuestions={quizzState.questions.length} />,
+    started: (
+      <>
+        <Progress {...quizzState} nbOfQuestions={quizzState.questions.length} />
+        <Question nbOfQuestions={quizzState.questions.length} addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState} />
+      </>
+    ),
+    finished: (
+      <>
+        <Results {...quizzState} />
+        <button className="btn btn-ui" onClick={restartQuizzHandler}>
+          Restart
+        </button>
+      </>
+    ),
+  };
   return (
     <div className="app">
       <Header />
       <Main>
-        {quizzState.status === "loading" && <Loader />}
-        {quizzState.status === "error" && <Error />}
-        {quizzState.status === "ready" && <StartScreen startQuizz={startQuizzHandler} nbQuestions={nbQuestions} />}
-        {quizzState.status === "started" && (
-          <>
-            <Progress {...quizzState} nbOfQuestions={nbQuestions} />
-            <Question nbOfQuestions={nbQuestions} addPoints={correctAnswerHandler} nextQuestion={nexQuestionHandler} {...quizzState} />
-          </>
-        )}
-        {quizzState.status === "finished" && (
-          <>
-            <Results  {...quizzState} />
-            <button className='btn btn-ui' onClick={restartQuizzHandler}>Restart</button>
-          </>
-        )}
+        <Main>{statusComponents[quizzState.status]}</Main>
       </Main>
     </div>
   );
