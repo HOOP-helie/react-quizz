@@ -31,7 +31,11 @@ function reducer(state, action) {
       newState = { ...state, status: 'started' }
       break;
     case 'quizzFinished':
-      newState = { ...state, status: 'finished' }
+      if (state.score > state.highScore) {
+        newState = { ...state, status: 'finished', highScore: state.score }
+
+      } else { newState = { ...state, status: 'finished' } }
+
       break;
     case 'correctAnswer':
       newState = { ...state, score: state.score + action.payload };

@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Progress({ nbOfQuestions, progress, score, totalPoints }) {
+function Progress({ nbOfQuestions, progress, score, totalPoints, highScore }) {
     return (
         <div>
             <header className='progress'><progress id="file" max={nbOfQuestions} value={progress}></progress>
